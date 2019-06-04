@@ -6,7 +6,7 @@ Features
 
 * Supports authorization code, client credentials, refresh token and password grant, as well as extension grants, with scopes out of the box
 * Unopinionated about storage
-* Fully compliant with RFC 6749 and RFC 6750
+* Fully compliant with [RFC 6749](https://tools.ietf.org/html/rfc6749) and [RFC 6750](https://tools.ietf.org/html/rfc6750)
 * Very well tested
 
 ## Installation
