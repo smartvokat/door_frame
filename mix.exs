@@ -20,6 +20,8 @@ defmodule DoorFrame.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    []
+    [
+      {:plug, "~> 1.8"}
+    ]
   end
 end
