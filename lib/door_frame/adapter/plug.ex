@@ -1,5 +1,6 @@
 defmodule DoorFrame.Adapter.Plug do
   alias DoorFrame.Request
+  alias DoorFrame.Response
 
   @spec to_request(Plug.Conn.t()) :: DoorFrame.Request.t()
   def to_request(%Plug.Conn{} = conn) do
@@ -9,6 +10,13 @@ defmodule DoorFrame.Adapter.Plug do
     else
       e -> e
     end
+  end
+
+  def to_response(%Plug.Conn{} = conn, %Response{status: status} = response)
+      when status >= 200 and status < 300 do
+    conn
+    |> Plug.Conn.put_resp_header("content-type", "application/json;charset=UTF-8")
+    |> Plug.Conn.resp(status, Jason.encode!(response))
   end
 
   defp parse_body(%Plug.Conn{} = conn) do

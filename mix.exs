@@ -21,6 +21,7 @@ defmodule DoorFrame.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:jason, "~> 1.1"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:plug, "~> 1.8"}
     ]
