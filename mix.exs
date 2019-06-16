@@ -22,8 +22,10 @@ defmodule DoorFrame.MixProject do
   defp deps do
     [
       {:jason, "~> 1.1"},
+      {:joken, "~> 2.1"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
-      {:plug, "~> 1.8"}
+      {:plug, "~> 1.8"},
+      {:plug_cowboy, "~> 2.0", only: :dev, runtime: false}
     ]
   end
 end
