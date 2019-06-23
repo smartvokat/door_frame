@@ -5,6 +5,8 @@ defmodule DoorFrame.Error do
   """
   alias __MODULE__
 
+  @derive {Jason.Encoder, only: [:error, :description]}
+
   defstruct status_code: 400, error: nil, description: nil, uri: nil
 
   @doc """
