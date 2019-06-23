@@ -23,6 +23,10 @@ defmodule DoorFrame do
     struct(Request, fields)
   end
 
+  def token(%Request{} = request) do
+    token(create_context(), request)
+  end
+
   def token(%Context{} = context, %Request{} = request) do
     cond do
       !Map.has_key?(context.available_grant_types, request.grant_type) ->
