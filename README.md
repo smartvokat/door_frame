@@ -1,5 +1,7 @@
 # DoorFrame
 
+**NOTE: This library is not production-ready yet.**
+
 DoorFrame is an flexible framework to implement your own OAuth service provider. It provides all the necessary building blocks for different grants.
 
 Features
