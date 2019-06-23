@@ -25,9 +25,20 @@ defmodule DoorFrame.Adapter.Plug do
         {"grant_type", grant_type}, body_params ->
           Map.put(body_params, :grant_type, grant_type)
 
-        # username
-        # password
-        # …
+        {"client_id", value}, body_params ->
+          Map.put(body_params, :client_id, value)
+
+        {"client_secret", value}, body_params ->
+          Map.put(body_params, :client_secret, value)
+
+        {"username", value}, body_params ->
+          Map.put(body_params, :username, value)
+
+        {"password", value}, body_params ->
+          Map.put(body_params, :password, value)
+
+        {"scope", value}, body_params ->
+          Map.put(body_params, :scope, value)
 
         _, body_params ->
           body_params
