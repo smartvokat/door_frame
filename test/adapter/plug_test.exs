@@ -1,4 +1,5 @@
 defmodule DoorFrame.Adapter.PlugTest do
+  alias DoorFrame.Error
   alias DoorFrame.Adapter.Plug, as: Adapter
   alias Plug
 
@@ -34,6 +35,23 @@ defmodule DoorFrame.Adapter.PlugTest do
 
       assert {:ok, request} = Adapter.to_request(conn)
       assert request.grant_type == "client_credentials"
+    end
+
+    test "fails when there is no valid basic authorization header" do
+      conn = conn(:pst, "/", %{})
+      assert {:error, %Error{error: error, description: desc}} = Adapter.to_request(conn)
+      assert error = "invalid_request"
+      assert desc = "Missing authorization header"
+    end
+
+    test "fails when there is a malformed basic authorization header" do
+      conn =
+        conn(:pst, "/", %{})
+        |> Plug.Conn.put_req_header("authorization", "Basic #{Base.encode64("foo/bar")}")
+
+      assert {:error, %Error{error: error, description: desc}} = Adapter.to_request(conn)
+      assert error = "invalid_request"
+      assert desc = "Missing authorization header"
     end
   end
 end

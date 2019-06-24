@@ -1,6 +1,7 @@
 defmodule DoorFrame.Adapter.Plug do
   alias DoorFrame.Request
   alias DoorFrame.Response
+  alias DoorFrame.Error
 
   @spec to_request(Plug.Conn.t()) :: DoorFrame.Request.t()
   def to_request(%Plug.Conn{} = conn) do
@@ -56,7 +57,7 @@ defmodule DoorFrame.Adapter.Plug do
         parse_basic_authorization_header(token)
 
       _ ->
-        {:error, :invalid_authorization_header}
+        {:error, Error.invalid_request("Missing basic authorization header")}
     end
   end
 
@@ -65,7 +66,7 @@ defmodule DoorFrame.Adapter.Plug do
          [client_id, client_secret] <- String.split(credentials, ":") do
       {:ok, %{client_id: client_id, client_secret: client_secret}}
     else
-      _ -> {:error, :invalid_authorization_header}
+      _ -> {:error, Error.invalid_request("Malformed authorization header")}
     end
   end
 end
