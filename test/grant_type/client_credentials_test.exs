@@ -105,7 +105,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
       context: context
     } do
       defmodule MyHandler2 do
-        use DoorFrame.Handler
+        use DoorFrame
 
         def get_client(_, _) do
           {:error}
@@ -124,7 +124,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
       context: context
     } do
       defmodule MyHandler3 do
-        use DoorFrame.Handler
+        use DoorFrame
 
         def get_client(_, _) do
           {:error, "Client not found"}

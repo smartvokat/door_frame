@@ -16,7 +16,7 @@ defmodule DoorFrame do
     otp_app = Keyword.get(opts, :otp_app)
 
     quote do
-      @behaviour DoorFrame.Handler
+      @behaviour DoorFrame
 
       @default_context [
         handler: __MODULE__,
@@ -43,11 +43,11 @@ defmodule DoorFrame do
       def validate_scope(nil), do: {:ok}
 
       def generate_access_token(_client, _resource_owner) do
-        {:ok, DoorFrame.Helper.generate_token()}
+        {:ok, DoorFrame.generate_token()}
       end
 
       def generate_refresh_token(_client, _resource_owner) do
-        {:ok, DoorFrame.Helper.generate_token()}
+        {:ok, DoorFrame.generate_token()}
       end
 
       def create_context(fields \\ []) do
@@ -88,5 +88,21 @@ defmodule DoorFrame do
                      generate_access_token: 2,
                      generate_refresh_token: 2
     end
+  end
+
+  @doc """
+  Generates a random token with URL and filename safe alphabet.
+
+      iex> Token.generate_token()
+      "MPjl2Y5AkvtP30rFb3ABRwkYNWsuRhJX"
+      iex> Token.generate_token(20)
+      "XpT7OoqccDKg8Oa14B5w"
+  """
+  @spec generate_token(integer) :: String.t()
+  def generate_token(length \\ 32) do
+    length
+    |> :crypto.strong_rand_bytes()
+    |> Base.url_encode64(padding: false)
+    |> String.slice(0, length)
   end
 end
