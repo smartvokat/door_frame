@@ -3,6 +3,8 @@ defmodule DoorFrame.Response do
             resource_owner: nil,
             status: 200,
             access_token: nil,
-            token_type: nil,
-            expires_in: nil
+            refresh_token: nil,
+            token_type: "bearer",
+            expires_in: nil,
+            scope: nil
 end

@@ -1,6 +1,7 @@
 defmodule DoorFrame.Adapter.PlugTest do
-  alias DoorFrame.Error
   alias DoorFrame.Adapter.Plug, as: Adapter
+  alias DoorFrame.Error
+  alias DoorFrame.Response
   alias Plug
 
   use ExUnit.Case
@@ -52,6 +53,48 @@ defmodule DoorFrame.Adapter.PlugTest do
       assert {:error, %Error{error: error, description: desc}} = Adapter.to_request(conn)
       assert error = "invalid_request"
       assert desc = "Missing authorization header"
+    end
+  end
+
+  describe "to_response()" do
+    test "exports a minimal response to JSON" do
+      response = %Response{access_token: "a_token"}
+      conn = Adapter.to_response(conn(:pst, "/", %{}), response)
+
+      assert conn.status == 200
+      assert conn.resp_body == Jason.encode!(%{access_token: "a_token", token_type: "bearer"})
+    end
+
+    test "exports a minimal error to JSON" do
+      error = Error.invalid_grant()
+      conn = Adapter.to_response(conn(:pst, "/", %{}), error)
+
+      assert conn.status == error.status_code
+      assert conn.resp_body == Jason.encode!(%{error: "invalid_grant"})
+    end
+
+    test "adds expires_in correctly" do
+      response = %Response{access_token: "a_token", expires_in: 60 * 60 * 24}
+      conn = Adapter.to_response(conn(:pst, "/", %{}), response)
+
+      assert conn.status == 200
+
+      assert conn.resp_body ==
+               Jason.encode!(%{access_token: "a_token", token_type: "bearer", expires_in: 86400})
+    end
+
+    test "adds refresh_token correctly" do
+      response = %Response{access_token: "a_token", refresh_token: "a_refresh_token"}
+      conn = Adapter.to_response(conn(:pst, "/", %{}), response)
+
+      assert conn.status == 200
+
+      assert conn.resp_body ==
+               Jason.encode!(%{
+                 access_token: "a_token",
+                 token_type: "bearer",
+                 refresh_token: "a_refresh_token"
+               })
     end
   end
 end
