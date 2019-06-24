@@ -13,17 +13,19 @@ defmodule DoorFrame.Adapter.Plug do
     end
   end
 
-  def to_response(%Plug.Conn{} = conn, %Response{status: status} = response)
+  def to_response(conn, response_or_error, opts \\ [])
+
+  def to_response(%Plug.Conn{} = conn, %Response{status: status} = response, opts)
       when status >= 200 and status < 300 do
     # TODO: Handle redirects
 
     payload =
       %{
         token_type: response.token_type,
-        access_token: response.access_token
+        access_token: Response.get_access_token(response, opts)
       }
       |> put_if(:expires_in, response.expires_in)
-      |> put_if(:refresh_token, response.refresh_token)
+      |> put_if(:refresh_token, Response.get_refresh_token(response, opts))
       |> put_if(:scope, response.scope)
 
     conn
@@ -31,7 +33,7 @@ defmodule DoorFrame.Adapter.Plug do
     |> Plug.Conn.resp(status, Jason.encode!(payload))
   end
 
-  def to_response(%Plug.Conn{} = conn, %Error{} = error) do
+  def to_response(%Plug.Conn{} = conn, %Error{} = error, _opts) do
     payload =
       %{error: error.error}
       |> put_if(:description, error.description)
