@@ -24,8 +24,8 @@ defmodule DoorFrame.GrantType.ClientCredentials do
          {:ok, request} <- validate_scope(context, request),
          {:ok, response} <- get_client(context, request, response),
          {:ok, response} <- get_resource_owner(context, request, response),
-         {:ok, response} <- generate_access_token(context, response),
-         {:ok, response} <- generate_refresh_token(context, response),
+         {:ok, response} <- generate_token(:access_token, context, request, response),
+         {:ok, response} <- generate_token(:refresh_token, context, request, response),
          {:ok, response} <- persist_tokens(context, request, response) do
       {:ok, response}
     else
@@ -72,17 +72,9 @@ defmodule DoorFrame.GrantType.ClientCredentials do
     end
   end
 
-  defp generate_access_token(context, response) do
-    case context.handler.generate_access_token(response.client, response.resource_owner) do
-      {:ok, token} -> {:ok, Map.put(response, :access_token, token)}
-      {:error, description} -> {:error, Error.server_error(description)}
-      {:error} -> {:error, Error.server_error()}
-    end
-  end
-
-  defp generate_refresh_token(context, response) do
-    case context.handler.generate_refresh_token(response.client, response.resource_owner) do
-      {:ok, token} -> {:ok, Map.put(response, :refresh_token, token)}
+  defp generate_token(type, context, request, response) do
+    case context.handler.generate_token(type, request, response, context) do
+      {:ok, token} -> {:ok, Map.put(response, type, token)}
       {:error, description} -> {:error, Error.server_error(description)}
       {:error} -> {:error, Error.server_error()}
     end

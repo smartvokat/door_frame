@@ -9,8 +9,12 @@ defmodule DoorFrame do
   alias DoorFrame.Error
 
   @callback validate_scope(any()) :: {:ok, any()} | {:error, atom}
-  @callback generate_access_token(any(), any()) :: {:ok, any()} | {:error, atom}
-  @callback generate_refresh_token(any(), any()) :: {:ok, any()} | {:error, atom}
+  @callback generate_token(
+              atom,
+              DoorFrame.Request.t(),
+              DoorFrame.Response.t(),
+              DoorFrame.Context.t()
+            ) :: {:ok, any()} | {:error, atom}
 
   defmacro __using__(opts \\ []) do
     otp_app = Keyword.get(opts, :otp_app)
@@ -42,11 +46,7 @@ defmodule DoorFrame do
 
       def validate_scope(nil), do: {:ok}
 
-      def generate_access_token(_client, _resource_owner) do
-        {:ok, DoorFrame.generate_token()}
-      end
-
-      def generate_refresh_token(_client, _resource_owner) do
+      def generate_token(_type, _request, _response, _context) do
         {:ok, DoorFrame.generate_token()}
       end
 
@@ -85,8 +85,7 @@ defmodule DoorFrame do
       end
 
       defoverridable validate_scope: 1,
-                     generate_access_token: 2,
-                     generate_refresh_token: 2
+                     generate_token: 4
     end
   end
 

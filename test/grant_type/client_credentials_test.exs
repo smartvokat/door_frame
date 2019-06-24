@@ -65,12 +65,12 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
           {:ok, %{id: "ro"}}
         end
 
-        def generate_access_token(%{id: "c"}, %{id: "ro"}) do
+        def generate_token(:access_token, _request, _response, _context) do
           send(self(), :generate_access_token)
           {:ok, "at"}
         end
 
-        def generate_refresh_token(%{id: "c"}, %{id: "ro"}) do
+        def generate_token(:refresh_token, _request, _response, _context) do
           send(self(), :generate_refresh_token)
           {:ok, "rt"}
         end
