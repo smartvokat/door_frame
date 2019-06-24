@@ -74,65 +74,29 @@ defmodule DoorFrame.GrantType.ClientCredentials do
 
   defp generate_token(type, context, request, response) do
     case context.handler.generate_token(type, request, response, context) do
-      {:ok, token} -> {:ok, Map.put(response, type, token)}
-      {:error, description} -> {:error, Error.server_error(description)}
-      {:error} -> {:error, Error.server_error()}
+      {:ok, token} ->
+        {:ok, Map.put(response, type, token)}
+
+      {:error, description} ->
+        {:error, Error.server_error(description)}
+
+      {:error} ->
+        {:error, Error.server_error()}
     end
   end
 
   defp persist_tokens(context, _request, response) do
-    cond do
-      Keyword.has_key?(context.handler.__info__(:functions), :persist_tokens) ->
-        # TODO: Should we only add the refresh_token when available?
-        tokens = %{access_token: response.access_token, refresh_token: response.refresh_token}
+    tokens = %{access_token: response.access_token, refresh_token: response.refresh_token}
 
-        case context.handler.persist_tokens(tokens, response.client, response.resource_owner) do
-          {:ok} ->
-            {:ok, response}
+    case context.handler.persist_tokens(tokens, response) do
+      {:ok} ->
+        {:ok, response}
 
-          {:ok, tokens} ->
-            {:ok,
-             response
-             |> Map.put(:access_token, tokens.access_token)
-             |> Map.put(:refresh_token, tokens.refresh_token)}
+      {:error, description} ->
+        {:error, Error.server_error(description)}
 
-          {:error, description} ->
-            {:error, Error.server_error(description)}
-
-          {:error} ->
-            {:error, Error.server_error()}
-        end
-
-      true ->
-        with {:ok, response} <-
-               persist_token(:access_token, response.access_token, context, response),
-             {:ok, response} <-
-               persist_token(:refresh_token, response.refresh_token, context, response) do
-          {:ok, response}
-        else
-          e -> e
-        end
-    end
-  end
-
-  defp persist_token(type, token, context, response) do
-    callback =
-      cond do
-        type == :access_token ->
-          &context.handler.persist_token/3
-
-        type == :refresh_token ->
-          &context.handler.persist_token/3
-
-        true ->
-          raise "Unknown token type"
-      end
-
-    case callback.(Map.put(%{}, type, token), response.client, response.resource_owner) do
-      {:ok} -> {:ok, response}
-      {:ok, token} -> {:ok, Map.put(response, type, token)}
-      {:error, description} -> {:error, Error.server_error(description)}
-      {:error} -> {:error, Error.server_error()}
+      {:error} ->
+        {:error, Error.server_error()}
     end
   end
 end

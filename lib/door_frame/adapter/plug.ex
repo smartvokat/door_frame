@@ -20,10 +20,10 @@ defmodule DoorFrame.Adapter.Plug do
     payload =
       %{
         token_type: response.token_type,
-        access_token: response.access_token_string
+        access_token: response.access_token
       }
       |> put_if(:expires_in, response.expires_in)
-      |> put_if(:refresh_token, response.refresh_token_string)
+      |> put_if(:refresh_token, response.refresh_token)
       |> put_if(:scope, response.scope)
 
     conn

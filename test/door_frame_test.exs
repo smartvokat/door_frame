@@ -34,7 +34,7 @@ defmodule DoorFrameTest do
           {:ok, %{id: "a_resource_owner"}}
         end
 
-        def persist_tokens(_tokens, _, _) do
+        def persist_tokens(_tokens, _response) do
           {:ok}
         end
       end

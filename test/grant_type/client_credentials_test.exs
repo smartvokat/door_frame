@@ -72,17 +72,16 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
 
         def generate_token(:refresh_token, _request, _response, _context) do
           send(self(), :generate_refresh_token)
-          {:ok, "rt"}
+          {:ok, %{id: "rt"}}
         end
 
-        def persist_token(%{access_token: "at"}, %{id: "c"}, %{id: "ro"}) do
+        def persist_tokens(
+              %{access_token: "at", refresh_token: %{id: "rt"}},
+              %{client: %{id: "c"}, resource_owner: %{id: "ro"}}
+            ) do
           send(self(), :persist_access_token)
-          {:ok, "at"}
-        end
-
-        def persist_token(%{refresh_token: "rt"}, %{id: "c"}, %{id: "ro"}) do
           send(self(), :persist_refresh_token)
-          {:ok, "rt"}
+          {:ok}
         end
       end
 
