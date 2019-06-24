@@ -34,7 +34,7 @@ config :my_app, My.App.Auth,
 
 ```elixir
 defmodule My.App.Auth do
-  use DoorFrame.Handler
+  use DoorFrame, otp_app: :my_app
 
   # ...implement callbacks
 end
@@ -42,13 +42,13 @@ end
 
 ```elixir
 request =
-  DoorFrame.create_request(
+  My.App.Auth.create_request(
     grant_type: "client_credentials",
     client_id: "a_client",
     client_secret: "secret"
   )
 
-case DoorFrame.token(request) do
+case My.App.Auth.token(request) do
   {:ok, response} ->
     IO.inspect(response.access_token)
 
@@ -62,7 +62,7 @@ end
 ```elixir
 request = DoorFrame.Adapter.Plug.to_request(conn)
 
-case DoorFrame.token(request) do
+case My.App.Auth.token(request) do
   {:ok, response} ->
     DoorFrame.Adapter.Plug.to_response(conn, response)
 

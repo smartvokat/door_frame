@@ -3,24 +3,28 @@ defmodule DoorFrameTest do
 
   use ExUnit.Case
 
+  defmodule MyHandler do
+    use DoorFrame
+  end
+
   describe "token()" do
     test "fails if there is no grant_type" do
-      context = DoorFrame.create_context()
-      request = DoorFrame.create_request()
-      assert {:error, %Error{error: error}} = DoorFrame.token(context, request)
+      context = MyHandler.create_context()
+      request = MyHandler.create_request()
+      assert {:error, %Error{error: error}} = MyHandler.token(context, request)
       assert error = "invalid_grant"
     end
 
     test "fails if there is no available handler for this grant_type" do
-      context = DoorFrame.create_context(available_grant_types: %{})
-      request = DoorFrame.create_request(grant_type: "client_credentials")
-      assert {:error, %Error{error: error}} = DoorFrame.token(context, request)
+      context = MyHandler.create_context(available_grant_types: %{})
+      request = MyHandler.create_request(grant_type: "client_credentials")
+      assert {:error, %Error{error: error}} = MyHandler.token(context, request)
       assert error = "server_error"
     end
 
     test "supports the client_credential grant type" do
       defmodule MyHandler1 do
-        use DoorFrame.Handler
+        use DoorFrame
 
         def get_client(_, _) do
           {:ok, %{id: "a_client"}}
@@ -35,16 +39,16 @@ defmodule DoorFrameTest do
         end
       end
 
-      context = DoorFrame.create_context(handler: MyHandler1)
+      context = MyHandler1.create_context()
 
       request =
-        DoorFrame.create_request(
+        MyHandler1.create_request(
           grant_type: "client_credentials",
           client_id: "a_client",
           client_secret: "secret"
         )
 
-      assert {:ok, response} = DoorFrame.token(context, request)
+      assert {:ok, response} = MyHandler1.token(context, request)
     end
   end
 end
