@@ -1,5 +1,4 @@
 defmodule DoorFrame.GrantType.ClientCredentialsTest do
-  alias DoorFrame.Context
   alias DoorFrame.Error
   alias DoorFrame.GrantType.ClientCredentials
   alias DoorFrame.Request
@@ -15,41 +14,34 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
     }
 
     response = %Response{}
-    context = %Context{handler: nil}
-    [request: request, response: response, context: context]
+    [request: request, response: response]
   end
 
   describe "handle()" do
-    test "returns an error when the request does not contain a client_id", %{
-      response: response,
-      context: context
-    } do
+    test "returns an error when the request does not contain a client_id", %{response: response} do
       request = %Request{}
 
       assert {:error, %Error{error: "invalid_client"} = error} =
-               ClientCredentials.handle(context, request, response)
+               ClientCredentials.handle(request, response)
 
       assert error.description =~ "client_id"
     end
 
     test "returns an error when the request does not contain a client_secret", %{
-      response: response,
-      context: context
+      response: response
     } do
       request = %Request{client_id: "secret_id"}
 
       assert {:error, %Error{error: "invalid_client"} = error} =
-               ClientCredentials.handle(context, request, response)
+               ClientCredentials.handle(request, response)
 
       assert error.description =~ "client_secret"
     end
 
-    test "calls the required callback functions of the handler", %{
-      request: request,
-      response: response,
-      context: context
-    } do
+    test "calls the required callback functions of the handler", %{response: response} do
       defmodule MyHandler1 do
+        use DoorFrame
+
         def validate_scope("read write") do
           send(self(), :validate_scope)
           {:ok, ["read", "write"]}
@@ -65,12 +57,12 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
           {:ok, %{id: "ro"}}
         end
 
-        def generate_token(:access_token, _request, _response, _context) do
+        def generate_token(:access_token, _request, _response) do
           send(self(), :generate_access_token)
           {:ok, "at"}
         end
 
-        def generate_token(:refresh_token, _request, _response, _context) do
+        def generate_token(:refresh_token, _request, _response) do
           send(self(), :generate_refresh_token)
           {:ok, %{id: "rt"}}
         end
@@ -85,9 +77,12 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
         end
       end
 
-      context
-      |> Context.put_handler(MyHandler1)
-      |> ClientCredentials.handle(request, response)
+      MyHandler1.create_request(
+        client_id: "secret_client_id",
+        client_secret: "secret_client_secret",
+        scope: "read write"
+      )
+      |> ClientCredentials.handle(response)
 
       assert_received :validate_scope
       assert_received :get_client_called
@@ -100,8 +95,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
 
     test "handles errors without a description in get_client", %{
       request: request,
-      response: response,
-      context: context
+      response: response
     } do
       defmodule MyHandler2 do
         use DoorFrame
@@ -112,15 +106,13 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
       end
 
       assert {:error, %Error{error: "invalid_client"}} =
-               context
-               |> Context.put_handler(MyHandler2)
-               |> ClientCredentials.handle(request, response)
+               MyHandler2.create_request()
+               |> ClientCredentials.handle(response)
     end
 
     test "handles errors with a description in get_client", %{
       request: request,
-      response: response,
-      context: context
+      response: response
     } do
       defmodule MyHandler3 do
         use DoorFrame
@@ -131,9 +123,8 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
       end
 
       assert {:error, %Error{error: "invalid_client", description: description}} =
-               context
-               |> Context.put_handler(MyHandler3)
-               |> ClientCredentials.handle(request, response)
+               MyHandler3.create_request()
+               |> ClientCredentials.handle(response)
 
       assert description = "Client not found"
     end

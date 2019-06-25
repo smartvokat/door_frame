@@ -3,19 +3,20 @@ defmodule DoorFrame.Adapter.Plug do
   alias DoorFrame.Response
   alias DoorFrame.Error
 
-  @spec to_request(Plug.Conn.t()) :: DoorFrame.Request.t()
-  def to_request(%Plug.Conn{} = conn) do
+  @spec to_request(DoorFrame.Request.t(), Plug.Conn.t(), any()) ::
+          {:ok, DoorFrame.Request.t()} | {:error, DoorFrame.Error.t()}
+  def to_request(%Request{} = request, %Plug.Conn{} = conn, _opts \\ []) do
     with {:ok, credentials} <- parse_authorization_header(conn),
          {:ok, body_params} <- parse_body(conn) do
-      {:ok, struct(Request, Map.merge(credentials, body_params))}
+      {:ok, request |> Map.merge(credentials) |> Map.merge(body_params)}
     else
       e -> e
     end
   end
 
-  def to_response(conn, response_or_error, opts \\ [])
+  def to_response(response_or_error, conn, opts \\ [])
 
-  def to_response(%Plug.Conn{} = conn, %Response{status: status} = response, opts)
+  def to_response(%Response{status: status} = response, %Plug.Conn{} = conn, opts)
       when status >= 200 and status < 300 do
     # TODO: Handle redirects
 
@@ -33,7 +34,7 @@ defmodule DoorFrame.Adapter.Plug do
     |> Plug.Conn.resp(status, Jason.encode!(payload))
   end
 
-  def to_response(%Plug.Conn{} = conn, %Error{} = error, _opts) do
+  def to_response(%Error{} = error, %Plug.Conn{} = conn, _opts) do
     payload =
       %{error: error.error}
       |> put_if(:description, error.description)

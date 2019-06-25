@@ -9,16 +9,16 @@ defmodule DoorFrameTest do
 
   describe "token()" do
     test "fails if there is no grant_type" do
-      context = MyHandler.create_context()
       request = MyHandler.create_request()
-      assert {:error, %Error{error: error}} = MyHandler.token(context, request)
+      assert {:error, %Error{error: error}} = MyHandler.token(request)
       assert error = "invalid_grant"
     end
 
     test "fails if there is no available handler for this grant_type" do
-      context = MyHandler.create_context(available_grant_types: %{})
-      request = MyHandler.create_request(grant_type: "client_credentials")
-      assert {:error, %Error{error: error}} = MyHandler.token(context, request)
+      request =
+        MyHandler.create_request(available_grant_types: %{}, grant_type: "client_credentials")
+
+      assert {:error, %Error{error: error}} = MyHandler.token(request)
       assert error = "server_error"
     end
 
@@ -39,8 +39,6 @@ defmodule DoorFrameTest do
         end
       end
 
-      context = MyHandler1.create_context()
-
       request =
         MyHandler1.create_request(
           grant_type: "client_credentials",
@@ -48,7 +46,7 @@ defmodule DoorFrameTest do
           client_secret: "secret"
         )
 
-      assert {:ok, response} = MyHandler1.token(context, request)
+      assert {:ok, response} = MyHandler1.token(request)
     end
   end
 end
