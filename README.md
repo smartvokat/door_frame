@@ -1,11 +1,13 @@
 # DoorFrame
 
+**NOTE: This library is not production-ready yet.**
+
 DoorFrame is an flexible framework to implement your own OAuth service provider. It provides all the necessary building blocks for different grants.
 
 Features
 
 * Supports authorization code, client credentials, refresh token and password grant, as well as extension grants, with scopes out of the box
-* Unopinionated about storage
+* Unopinionated about storage and HTTP integration
 * Fully compliant with [RFC 6749](https://tools.ietf.org/html/rfc6749) and [RFC 6750](https://tools.ietf.org/html/rfc6750)
 * Very well tested
 
@@ -32,20 +34,41 @@ config :my_app, My.App.Auth,
 
 ```elixir
 defmodule My.App.Auth do
-  use DoorFrame.Handler, otp_app: :my_app
+  use DoorFrame, otp_app: :my_app
+
+  # ...implement callbacks
 end
 ```
 
 ```elixir
-My.App.Auth.authenticate()
+request =
+  My.App.Auth.create_request(
+    grant_type: "client_credentials",
+    client_id: "a_client",
+    client_secret: "secret"
+  )
+
+case My.App.Auth.token(request) do
+  {:ok, response} ->
+    IO.inspect(response.access_token)
+
+  {:error, error} ->
+    IO.inspect(error)
+end
 ```
 
 ### Plug
 
 ```elixir
-conn = conn
-|> DoorFrame.Adapter.Plug.authenticate(My.App.Auth)
-|> send_json()
+request = DoorFrame.Adapter.Plug.to_request(conn)
+
+case My.App.Auth.token(request) do
+  {:ok, response} ->
+    DoorFrame.Adapter.Plug.to_response(conn, response)
+
+  {:error, error} ->
+    DoorFrame.Adapter.Plug.to_response(conn, error)
+end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
