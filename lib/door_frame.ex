@@ -38,13 +38,11 @@ defmodule DoorFrame do
       Checks if the scope is valid
       """
       def validate_scope(scope) when is_binary(scope) do
-        IO.inspect("sdfsdfsd")
         scopes = scope |> String.trim() |> String.split(" ")
         {:ok, scopes}
       end
 
       def validate_scope(nil) do
-        IO.inspect("sdfsdfsssssssd")
         {:ok}
       end
 
