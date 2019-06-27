@@ -30,10 +30,10 @@ defmodule DoorFrame.GrantType.ClientCredentials do
   defp validate_request(request) do
     cond do
       is_nil(request.client_id) ->
-        {:error, Error.invalid_client("No client_id provided")}
+        {:error, Error.invalid_request("No client_id provided")}
 
       is_nil(request.client_secret) ->
-        {:error, Error.invalid_client("No client_secret provided")}
+        {:error, Error.invalid_request("No client_secret provided")}
 
       true ->
         {:ok}

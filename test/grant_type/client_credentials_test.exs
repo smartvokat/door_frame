@@ -21,7 +21,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
     test "returns an error when the request does not contain a client_id", %{response: response} do
       request = %Request{}
 
-      assert {:error, %Error{error: "invalid_client"} = error} =
+      assert {:error, %Error{error: "invalid_request"} = error} =
                ClientCredentials.handle(request, response)
 
       assert error.description =~ "client_id"
@@ -32,7 +32,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
     } do
       request = %Request{client_id: "secret_id"}
 
-      assert {:error, %Error{error: "invalid_client"} = error} =
+      assert {:error, %Error{error: "invalid_request"} = error} =
                ClientCredentials.handle(request, response)
 
       assert error.description =~ "client_secret"
@@ -106,7 +106,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
       end
 
       assert {:error, %Error{error: "invalid_client"}} =
-               MyHandler2.create_request()
+               MyHandler2.create_request(client_id: "test", client_secret: "test")
                |> ClientCredentials.handle(response)
     end
 
@@ -123,7 +123,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
       end
 
       assert {:error, %Error{error: "invalid_client", description: description}} =
-               MyHandler3.create_request()
+               MyHandler3.create_request(client_id: "test", client_secret: "test")
                |> ClientCredentials.handle(response)
 
       assert description = "Client not found"
