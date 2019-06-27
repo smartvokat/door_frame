@@ -40,14 +40,22 @@ defmodule DoorFrame.Adapter.PlugTest do
       assert request.client_secret == "a_client_secret"
     end
 
-    test "extracts the grant_type from the request body", %{request: request} do
+    test "extracts grant_type, username, password and scope from the request body", %{
+      request: request
+    } do
       conn =
-        create_plug_conn(:post, %{client_id: "a_client_id", client_secret: "a_client_secret"}, %{
-          grant_type: "client_credentials"
+        create_plug_conn(:post, %{client_id: "id", client_secret: "secret"}, %{
+          username: "john.doe@example.com",
+          password: "test",
+          scope: "read write",
+          grant_type: "password"
         })
 
       assert {:ok, request} = Adapter.to_request(request, conn)
-      assert request.grant_type == "client_credentials"
+      assert request.grant_type == "password"
+      assert request.username == "john.doe@example.com"
+      assert request.password == "test"
+      assert request.scope == "read write"
     end
 
     test "fails when there is no valid basic authorization header", %{request: request} do
