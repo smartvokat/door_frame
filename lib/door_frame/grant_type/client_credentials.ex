@@ -50,7 +50,7 @@ defmodule DoorFrame.GrantType.ClientCredentials do
   end
 
   defp get_client(request, response) do
-    case request.handler.get_client(request.client_id, request.client_secret) do
+    case request.handler.get_client(request, response) do
       {:ok, client} -> {:ok, Map.put(response, :client, client)}
       {:error, description} -> {:error, Error.invalid_client(description)}
       {:error} -> {:error, Error.invalid_client()}

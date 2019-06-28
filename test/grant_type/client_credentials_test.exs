@@ -47,7 +47,9 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
           {:ok, ["read", "write"]}
         end
 
-        def get_client("secret_client_id", "secret_client_secret") do
+        def get_client(%Request{} = request, %Response{}) do
+          assert request.client_id == "secret_client_id"
+          assert request.client_secret == "secret_client_secret"
           send(self(), :get_client_called)
           {:ok, %{id: "c"}}
         end
