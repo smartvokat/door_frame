@@ -87,9 +87,9 @@ defmodule DoorFrame do
   @doc """
   Generates a random token with URL and filename safe alphabet.
 
-      iex> Token.generate_token()
+      iex> DoorFrame.generate_token()
       "MPjl2Y5AkvtP30rFb3ABRwkYNWsuRhJX"
-      iex> Token.generate_token(20)
+      iex> DoorFrame.generate_token(20)
       "XpT7OoqccDKg8Oa14B5w"
   """
   @spec generate_token(integer) :: String.t()
