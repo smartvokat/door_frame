@@ -43,6 +43,7 @@ defmodule DoorFrame.GrantType.ClientCredentials do
   defp validate_scope(request) do
     case request.handler.validate_scope(request.scope) do
       {:ok} -> {:ok, request}
+      {:ok, %Request{} = request} -> request
       {:ok, scope} -> {:ok, Map.put(request, :scope, scope)}
       {:error, description} -> {:error, Error.invalid_scope(description)}
       {:error} -> {:error, Error.invalid_scope()}
@@ -51,6 +52,7 @@ defmodule DoorFrame.GrantType.ClientCredentials do
 
   defp get_client(request, response) do
     case request.handler.get_client(request, response) do
+      {:ok, %Response{} = response} -> response
       {:ok, client} -> {:ok, Map.put(response, :client, client)}
       {:error, description} -> {:error, Error.invalid_client(description)}
       {:error} -> {:error, Error.invalid_client()}
@@ -60,6 +62,7 @@ defmodule DoorFrame.GrantType.ClientCredentials do
   defp get_resource_owner_from_client(request, response) do
     if supports?(request.handler, :get_resource_owner_from_client, 2) do
       case request.handler.get_resource_owner_from_client(request, response) do
+        {:ok, %Response{} = response} -> response
         {:ok, resource_owner} -> {:ok, Map.put(response, :resource_owner, resource_owner)}
         {:error, description} -> {:error, Error.invalid_client(description)}
         {:error} -> {:error, Error.invalid_client()}
@@ -71,6 +74,9 @@ defmodule DoorFrame.GrantType.ClientCredentials do
 
   defp generate_token(type, request, response) do
     case request.handler.generate_token(type, request, response) do
+      {:ok, %Response{} = response} ->
+        response
+
       {:ok, token} ->
         {:ok, Map.put(response, type, token)}
 
@@ -88,6 +94,9 @@ defmodule DoorFrame.GrantType.ClientCredentials do
     case request.handler.persist_tokens(tokens, response) do
       {:ok} ->
         {:ok, response}
+
+      {:ok, %Response{} = response} ->
+        response
 
       {:error, description} ->
         {:error, Error.server_error(description)}
