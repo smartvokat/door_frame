@@ -52,8 +52,8 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
           {:ok, %{id: "c"}}
         end
 
-        def get_resource_owner(%{id: "c"}) do
-          send(self(), :get_resource_owner)
+        def get_resource_owner_from_client(%Request{}, %Response{client: %{id: "c"}}) do
+          send(self(), :get_resource_owner_from_client)
           {:ok, %{id: "ro"}}
         end
 
@@ -86,7 +86,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
 
       assert_received :validate_scope
       assert_received :get_client_called
-      assert_received :get_resource_owner
+      assert_received :get_resource_owner_from_client
       assert_received :generate_access_token
       assert_received :generate_refresh_token
       assert_received :persist_access_token

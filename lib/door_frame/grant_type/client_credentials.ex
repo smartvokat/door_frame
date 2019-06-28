@@ -17,7 +17,7 @@ defmodule DoorFrame.GrantType.ClientCredentials do
     with {:ok} <- validate_request(request),
          {:ok, request} <- validate_scope(request),
          {:ok, response} <- get_client(request, response),
-         {:ok, response} <- get_resource_owner(request, response),
+         {:ok, response} <- get_resource_owner_from_client(request, response),
          {:ok, response} <- generate_token(:access_token, request, response),
          {:ok, response} <- generate_token(:refresh_token, request, response),
          {:ok, response} <- persist_tokens(request, response) do
@@ -57,11 +57,15 @@ defmodule DoorFrame.GrantType.ClientCredentials do
     end
   end
 
-  defp get_resource_owner(request, response) do
-    case request.handler.get_resource_owner(response.client) do
-      {:ok, resource_owner} -> {:ok, Map.put(response, :resource_owner, resource_owner)}
-      {:error, description} -> {:error, Error.invalid_client(description)}
-      {:error} -> {:error, Error.invalid_client()}
+  defp get_resource_owner_from_client(request, response) do
+    if supports?(request.handler, :get_resource_owner_from_client, 2) do
+      case request.handler.get_resource_owner_from_client(request, response) do
+        {:ok, resource_owner} -> {:ok, Map.put(response, :resource_owner, resource_owner)}
+        {:error, description} -> {:error, Error.invalid_client(description)}
+        {:error} -> {:error, Error.invalid_client()}
+      end
+    else
+      {:ok, response}
     end
   end
 
@@ -92,4 +96,6 @@ defmodule DoorFrame.GrantType.ClientCredentials do
         {:error, Error.server_error()}
     end
   end
+
+  defp supports?(handler, func, arity), do: :erlang.function_exported(handler, func, arity)
 end
