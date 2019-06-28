@@ -45,6 +45,17 @@ defmodule DoorFrame.GrantType.Base do
     end
   end
 
+  @spec get_resource_owner_from_client(DoorFrame.Request.t(), DoorFrame.Response.t()) ::
+          {:error, DoorFrame.Error.t()} | {:ok, DoorFrame.Response.t()}
+  def get_resource_owner(request, response) do
+    case request.handler.get_resource_owner(request, response) do
+      {:ok, %Response{} = response} -> {:ok, response}
+      {:ok, resource_owner} -> {:ok, Map.put(response, :resource_owner, resource_owner)}
+      {:error, description} -> {:error, Error.invalid_grant(description)}
+      {:error} -> {:error, Error.invalid_grant()}
+    end
+  end
+
   @spec generate_token(token_type, DoorFrame.Request.t(), DoorFrame.Response.t()) ::
           {:error, DoorFrame.Error.t()} | {:ok, DoorFrame.Response.t()}
   def generate_token(type, request, response) do

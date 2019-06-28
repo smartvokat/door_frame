@@ -20,7 +20,8 @@ defmodule DoorFrame do
       @default_request [
         handler: __MODULE__,
         available_grant_types: %{
-          "client_credentials" => DoorFrame.GrantType.ClientCredentials
+          "client_credentials" => DoorFrame.GrantType.ClientCredentials,
+          "password" => DoorFrame.GrantType.Password
         }
       ]
 
