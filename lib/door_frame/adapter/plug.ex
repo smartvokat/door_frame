@@ -25,7 +25,7 @@ defmodule DoorFrame.Adapter.Plug do
         token_type: response.token_type,
         access_token: Response.get_access_token(response, opts)
       }
-      |> put_if(:expires_in, response.expires_in)
+      |> put_if(:expires_in, Response.get_expires_in(response, opts))
       |> put_if(:refresh_token, Response.get_refresh_token(response, opts))
       |> put_if(:scope, response.scope)
 

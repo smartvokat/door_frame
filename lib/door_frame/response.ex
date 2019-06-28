@@ -29,4 +29,14 @@ defmodule DoorFrame.Response do
         response.refresh_token
     end
   end
+
+  def get_expires_in(%Response{} = response, opts \\ []) do
+    cond do
+      is_map(response.access_token) && Keyword.has_key?(opts, :expires_in) ->
+        Map.get(response.access_token, Keyword.get(opts, :expires_in))
+
+      true ->
+        response.expires_in
+    end
+  end
 end
