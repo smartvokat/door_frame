@@ -1,4 +1,4 @@
-# DoorFrame
+# DoorFrame ![Build Status](https://travis-ci.org/smartvokat/door_frame.svg?branch=master)
 
 **NOTE: This library is not production-ready yet.**
 
