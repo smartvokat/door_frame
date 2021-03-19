@@ -1,4 +1,6 @@
-# DoorFrame ![Build Status](https://travis-ci.org/smartvokat/door_frame.svg?branch=master)
+# DoorFrame
+
+[![Continuous Integration](https://github.com/smartvokat/door_frame/actions/workflows/ci.yml/badge.svg)](https://github.com/smartvokat/door_frame/actions/workflows/ci.yml)
 
 **NOTE: This library is not production-ready yet.**
 
