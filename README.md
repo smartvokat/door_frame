@@ -27,7 +27,7 @@ end
 ```
 
 ```elixir
-config :my_app, My.App.Auth,
+config :my_app, MyApp.Auth,
        access_token_lifetime: 60 * 60 * 4
        refresh_token_lifetime: 60 * 60 * 24 * 14
 ```
@@ -35,7 +35,7 @@ config :my_app, My.App.Auth,
 ## Quick Start
 
 ```elixir
-defmodule My.App.Auth do
+defmodule MyApp.Auth do
   use DoorFrame, otp_app: :my_app
 
   # ...implement callbacks
@@ -44,13 +44,13 @@ end
 
 ```elixir
 request =
-  My.App.Auth.create_request(
+  MyApp.Auth.create_request(
     grant_type: "client_credentials",
     client_id: "a_client",
     client_secret: "secret"
   )
 
-case My.App.Auth.token(request) do
+case MyApp.Auth.token(request) do
   {:ok, response} ->
     IO.inspect(response.access_token)
 
@@ -64,7 +64,7 @@ end
 ```elixir
 request = DoorFrame.Adapter.Plug.to_request(conn)
 
-case My.App.Auth.token(request) do
+case MyApp.Auth.token(request) do
   {:ok, response} ->
     DoorFrame.Adapter.Plug.to_response(conn, response)
 
@@ -75,4 +75,4 @@ end
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/doorframe](https://hexdocs.pm/doorframe).
+be found at [hexdocs.pm/door_frame](https://hexdocs.pm/door_frame).
