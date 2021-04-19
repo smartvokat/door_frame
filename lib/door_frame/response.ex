@@ -1,14 +1,25 @@
 defmodule DoorFrame.Response do
   alias DoorFrame.Response
 
-  defstruct client: nil,
-            resource_owner: nil,
-            status: 200,
-            access_token: nil,
-            refresh_token: nil,
-            token_type: "bearer",
+  @type t() :: %__MODULE__{
+          access_token: binary(),
+          client: any(),
+          expires_in: integer(),
+          refresh_token: binary(),
+          resource_owner: any(),
+          scope: any(),
+          status: integer(),
+          token_type: binary()
+        }
+
+  defstruct access_token: nil,
+            client: nil,
             expires_in: nil,
-            scope: nil
+            refresh_token: nil,
+            resource_owner: nil,
+            scope: nil,
+            status: 200,
+            token_type: "bearer"
 
   def get_access_token(%Response{} = response, opts \\ []) do
     cond do
