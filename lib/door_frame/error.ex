@@ -7,6 +7,13 @@ defmodule DoorFrame.Error do
 
   @derive {Jason.Encoder, only: [:error, :description]}
 
+  @type t() :: %__MODULE__{
+          description: any(),
+          error: any(),
+          status_code: integer(),
+          uri: any()
+        }
+
   defstruct status_code: 400, error: nil, description: nil, uri: nil
 
   @doc """
