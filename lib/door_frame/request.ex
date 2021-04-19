@@ -8,5 +8,6 @@ defmodule DoorFrame.Request do
             password: nil,
             refresh_token_lifetime: 60 * 60 * 24 * 14,
             scope: nil,
-            username: nil
+            username: nil,
+            context: nil
 end

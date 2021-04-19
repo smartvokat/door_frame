@@ -23,10 +23,23 @@ defmodule DoorFrame.GrantType.Base do
           {:error, DoorFrame.Error.t()} | {:ok, DoorFrame.Response.t()}
   def get_client(request, response) do
     case request.handler.get_client(request, response) do
-      {:ok, %Response{} = response} -> {:ok, response}
-      {:ok, client} -> {:ok, Map.put(response, :client, client)}
-      {:error, description} -> {:error, Error.invalid_client(description)}
-      {:error} -> {:error, Error.invalid_client()}
+      {:ok, %Response{} = response} ->
+        {:ok, response}
+
+      {:ok, client} ->
+        {:ok, Map.put(response, :client, client)}
+
+      {:error, description} when is_binary(description) ->
+        {:error, Error.invalid_client(description)}
+
+      {:error, %Error{}} = error ->
+        error
+
+      :error ->
+        {:error, Error.invalid_client()}
+
+      _ ->
+        raise RuntimeError, ~s/Invalid return value for "get_client" callback./
     end
   end
 
@@ -45,14 +58,27 @@ defmodule DoorFrame.GrantType.Base do
     end
   end
 
-  @spec get_resource_owner_from_client(DoorFrame.Request.t(), DoorFrame.Response.t()) ::
+  @spec get_resource_owner(DoorFrame.Request.t(), DoorFrame.Response.t()) ::
           {:error, DoorFrame.Error.t()} | {:ok, DoorFrame.Response.t()}
   def get_resource_owner(request, response) do
     case request.handler.get_resource_owner(request, response) do
-      {:ok, %Response{} = response} -> {:ok, response}
-      {:ok, resource_owner} -> {:ok, Map.put(response, :resource_owner, resource_owner)}
-      {:error, description} -> {:error, Error.invalid_grant(description)}
-      {:error} -> {:error, Error.invalid_grant()}
+      {:ok, %Response{} = response} ->
+        {:ok, response}
+
+      {:ok, resource_owner} ->
+        {:ok, Map.put(response, :resource_owner, resource_owner)}
+
+      {:error, description} when is_binary(description) ->
+        {:error, Error.invalid_grant(description)}
+
+      {:error, %Error{}} = error ->
+        error
+
+      :error ->
+        {:error, Error.invalid_grant()}
+
+      _ ->
+        raise RuntimeError, ~s/Invalid return value for "get_resource_owner" callback./
     end
   end
 
@@ -69,7 +95,7 @@ defmodule DoorFrame.GrantType.Base do
       {:error, description} ->
         {:error, Error.server_error(description)}
 
-      {:error} ->
+      :error ->
         {:error, Error.server_error()}
     end
   end
@@ -77,22 +103,26 @@ defmodule DoorFrame.GrantType.Base do
   @spec persist_tokens(DoorFrame.Request.t(), DoorFrame.Response.t()) ::
           {:error, DoorFrame.Error.t()} | {:ok, DoorFrame.Response.t()}
   def persist_tokens(request, response) do
-    tokens = %{access_token: response.access_token, refresh_token: response.refresh_token}
+    if supports?(request.handler, :persist_tokens, 2) do
+      tokens = %{access_token: response.access_token, refresh_token: response.refresh_token}
 
-    case request.handler.persist_tokens(tokens, response) do
-      {:ok} ->
-        {:ok, response}
+      case request.handler.persist_tokens(tokens, response) do
+        {:ok} ->
+          {:ok, response}
 
-      {:ok, %Response{} = response} ->
-        {:ok, response}
+        {:ok, %Response{} = response} ->
+          {:ok, response}
 
-      {:error, description} ->
-        {:error, Error.server_error(description)}
+        {:error, description} ->
+          {:error, Error.server_error(description)}
 
-      {:error} ->
-        {:error, Error.server_error()}
+        {:error} ->
+          {:error, Error.server_error()}
+      end
+    else
+      {:ok, response}
     end
   end
 
-  def supports?(handler, func, arity), do: :erlang.function_exported(handler, func, arity)
+  def supports?(handler, func, arity), do: function_exported?(handler, func, arity)
 end
