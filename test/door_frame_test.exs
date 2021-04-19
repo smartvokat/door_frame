@@ -35,7 +35,7 @@ defmodule DoorFrameTest do
         end
 
         def persist_tokens(_tokens, _response) do
-          {:ok}
+          :ok
         end
       end
 

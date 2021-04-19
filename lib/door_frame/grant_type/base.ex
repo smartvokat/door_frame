@@ -107,7 +107,7 @@ defmodule DoorFrame.GrantType.Base do
       tokens = %{access_token: response.access_token, refresh_token: response.refresh_token}
 
       case request.handler.persist_tokens(tokens, response) do
-        {:ok} ->
+        :ok ->
           {:ok, response}
 
         {:ok, %Response{} = response} ->
@@ -116,7 +116,7 @@ defmodule DoorFrame.GrantType.Base do
         {:error, description} ->
           {:error, Error.server_error(description)}
 
-        {:error} ->
+        :error ->
           {:error, Error.server_error()}
       end
     else

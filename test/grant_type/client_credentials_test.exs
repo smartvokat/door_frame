@@ -75,7 +75,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
             ) do
           send(self(), :persist_access_token)
           send(self(), :persist_refresh_token)
-          {:ok}
+          :ok
         end
       end
 
@@ -103,7 +103,7 @@ defmodule DoorFrame.GrantType.ClientCredentialsTest do
         use DoorFrame
 
         def get_client(_, _) do
-          {:error}
+          :error
         end
       end
 

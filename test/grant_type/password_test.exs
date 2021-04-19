@@ -99,7 +99,7 @@ defmodule DoorFrame.GrantType.PasswordTest do
             ) do
           send(self(), :persist_access_token)
           send(self(), :persist_refresh_token)
-          {:ok}
+          :ok
         end
       end
 
